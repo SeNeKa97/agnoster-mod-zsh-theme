@@ -52,6 +52,7 @@ DETACHED="\u27a6"
 CROSS="\u2718"
 LIGHTNING="\u26a1"
 GEAR="\u2699"
+LINUX_UBUNTU="\uF31B"
 
 # Begin a segment
 # Takes two arguments, background and foreground. Both can be omitted,
@@ -109,7 +110,7 @@ prompt_context() {
   local user=`whoami`
 
   if [[ "$user" != "$DEFAULT_USER" || -n "$SSH_CONNECTION" ]]; then
-    prompt_segment $PRIMARY_FG default " %(!.%{%F{yellow}%}.)$user "
+    prompt_segment $PRIMARY_FG default "%(!.%{%F{yellow}%}.)$LINUX_UBUNTU $user "
   fi
 }
 
@@ -122,7 +123,7 @@ prompt_git() {
    local PL_BRANCH_CHAR
    () {
      local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-     PL_BRANCH_CHAR=$'\ue0a0'         # 
+     PL_BRANCH_CHAR=$' \ue0a0'         # 
    }
    local ref dirty mode repo_path
 
