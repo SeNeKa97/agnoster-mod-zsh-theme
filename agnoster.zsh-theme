@@ -25,12 +25,14 @@
 ### Segments of the prompt, default order declaration
 
 typeset -aHg AGNOSTER_PROMPT_SEGMENTS=(
+    prompt_down_arrow
     prompt_status
     prompt_context
     prompt_virtualenv
     prompt_dir
     prompt_git
     prompt_end
+    prompt_right_arrow
 )
 
 ### Segment drawing
@@ -42,6 +44,7 @@ if [[ -z "$PRIMARY_FG" ]]; then
 fi
 
 # Characters
+REVERSE_SEGMENT_SEPARATOR="\ue0b2"
 SEGMENT_SEPARATOR="\ue0b0"
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
@@ -66,6 +69,30 @@ prompt_segment() {
   [[ -n $3 ]] && print -n $3
 }
 
+# Begin a segment
+# Takes two arguments, background and foreground. Both can be omitted,
+# rendering default background/foreground.
+prompt_reverse_segment() {
+  local bg fg
+  [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
+  [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
+  if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
+    print -n "%{$bg%F{$CURRENT_BG}%}$REVERSE_SEGMENT_SEPARATOR%{$fg%}"
+  else
+    print -n "%{$bg%}%{$fg%}"
+  fi
+  CURRENT_BG=$1
+  [[ -n $3 ]] && print -n $3
+}
+
+prompt_down_arrow(){
+  print -n "╭─"
+}
+
+prompt_right_arrow(){
+  print -n "╰─➤ "
+}
+
 # End the prompt, closing any open segments
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
@@ -85,7 +112,8 @@ prompt_context() {
   local user=`whoami`
 
   if [[ "$user" != "$DEFAULT_USER" || -n "$SSH_CONNECTION" ]]; then
-    prompt_segment $PRIMARY_FG default " %(!.%{%F{yellow}%}.)$user@%m "
+    prompt_reverse_segment $PRIMARY_FG default
+    prompt_segment $PRIMARY_FG default " %(!.%{%F{yellow}%}.)$user "
   fi
 }
 
@@ -166,7 +194,7 @@ prompt_agnoster_setup() {
 
   zstyle ':vcs_info:*' enable git
   zstyle ':vcs_info:*' check-for-changes false
-  zstyle ':vcs_info:git*' formats '%b'
+  zstyle ':vcs_info:git*' formats ' #%8.8i'
   zstyle ':vcs_info:git*' actionformats '%b (%a)'
 }
 
